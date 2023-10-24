@@ -10,66 +10,70 @@ OS: Linux
 
 Склонировать репозиторий:
 
-#### git clone ...
+`git clone ...`
 
 Выполнить:
 
-#### python3 -m pip install --upgrade pip
-#### python3 -m pip install --upgrade build
+`python3 -m pip install --upgrade pip`
+
+`python3 -m pip install --upgrade build`
 
 Перейти в директорию с файлом pyproject.toml:
 
-#### cd rosbag_s3/rosbag_processor
+`cd rosbag_s3/rosbag_processor`
 
-Выполнить:?
+Выполнить:
 
-#### python3 -m build
+`python3 -m build`
 
 Будет создана директория с дистрибутивом:
 
-#### rosbag_s3/rosbag_processor/dist
+`rosbag_s3/rosbag_processor/dist`
 
 В ней должны появиться два файла:
 
-#### rosbag_processor-0.1.tar.gz
-#### rosbag_processor-0.1-py3-none-any.whl
+`rosbag_processor-0.1.tar.gz`
+
+`rosbag_processor-0.1-py3-none-any.whl`
 
 ### Установка:
 
 Создать виртуальную среду для программы - тестера, например:
 
-#### rosbag_tester_env
+`rosbag_tester_env`
 
 Активировать её, например, в случае virtualenv:
 
-#### workon rosbag_tester_env
+`workon rosbag_tester_env`
 
 Далее выполнить:
 
-#### pip install rosbag_s3/rosbag_processor/dist/rosbag_processor-0.1-py3-none-any.whl
+`pip install rosbag_s3/rosbag_processor/dist/rosbag_processor-0.1-py3-none-any.whl`
 
 Будет установлен пакет rosbag_processor-0.1 с зависимостями.
 
 Зависимости можно установить отдельно:
 
-#### pip install bagpy
-#### pip install opencv-python
-#### pip install rosbags-image
+`pip install bagpy`
+
+`pip install opencv-python`
+
+`pip install rosbags-image`
 
 
 ### Использование:
 
 В домашней директории создать папку
 
-#### .rosbag_processor
+`.rosbag_processor`
 
 с файлом конфигурации
 
-#### conf.json внутри
+`conf.json внутри`
 
 Содержимое json:
 
-#### {"log_file":"rosbag_processor", "bag_file_extension":".bag"}
+`{"log_file":"rosbag_processor", "bag_file_extension":".bag"}`
 
 Создать python - файл для запуска, например, main.py с содержимым:  
 
@@ -99,4 +103,4 @@ OS: Linux
 
 Запустить в созданной виртуальной среде:
 
-#### (rosbag_tester_env) user@lws:~/rosbag_s3/rosbag_tester$ python3 main.py
+`(rosbag_tester_env) user@lws:~/rosbag_s3/rosbag_tester$ python3 main.py`
