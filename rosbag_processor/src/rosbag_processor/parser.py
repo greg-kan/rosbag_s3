@@ -7,21 +7,20 @@ import cv2
 from rosbags.image import message_to_cvimage
 from rosbags.image import compressed_image_to_cvimage
 
+from rosbag_processor import settings as st
+from rosbag_processor.logger import Logger
 
-# import logging
-
-# LOG_FILE = '../routine.log'
-
-# logging.basicConfig(filename=LOG_FILE,
-#                     filemode='w',
-#                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-#                     datefmt='%H:%M:%S',
-#                     level=logging.INFO)
+#  for local testing:
+# import Logger
+# import settings as st
 
 
 DATA_TYPES = ['sensor_msgs/Image', 'sensor_msgs/CompressedImage']  # Hardcoded according to the task
 
-BAG_FILE_EXTENSION = '.bag'  # Move it to the conf
+bag_file_extension = st.bag_file_extension
+log_file = st.log_file
+
+logger = Logger('parser_logger', log_file).get()
 
 
 def process_bag_message(file_name, path_to_pictures, topic, message, datatype, time_stamp,
@@ -36,6 +35,7 @@ def process_bag_message(file_name, path_to_pictures, topic, message, datatype, t
 
     out_dir_name = os.path.join(path_to_pictures, topic_str, datatype, folder_name_suffix, '')
 
+    img = None
     if datatype == 'Image':
         img = message_to_cvimage(message)
     elif datatype == 'CompressedImage':
@@ -44,17 +44,16 @@ def process_bag_message(file_name, path_to_pictures, topic, message, datatype, t
     if not os.path.exists(out_dir_name):
         os.makedirs(out_dir_name)
 
-    cv2.imwrite(out_dir_name + out_file_name + '.png', img)
-
-    # logging.info(f"Written file: {out_file_name}")
+    if img is not None:
+        cv2.imwrite(out_dir_name + out_file_name + '.png', img)
+        logger.info(f"Written file: {out_file_name}")
 
     if debug_mode:
-        print(out_file_name)
-        print(out_dir_name)
+        print(f"Written file: {out_file_name}")
 
 
 def process_bag_file(file_name, path_to_pictures, topics, start_time, end_time, debug_mode):
-    # logging.info(f"Processing file: {file_name}")
+    logger.info(f"Processing file: {file_name}")
     if debug_mode:
         print(f"Processing file: {file_name}")
 
@@ -73,8 +72,8 @@ def process_bag_file(file_name, path_to_pictures, topics, start_time, end_time, 
 
 
 def pars_files(path_to_files, path_to_pictures, topics=None, start_time=None, end_time=None, debug_mode=False):
-    # logging.info(f"Processing bag files started with: Local path to files={path_to_files}, "
-    #              f"Topics={topics}, Start time={start_time}, End time={end_time}")
+    logger.info(f"Processing bag files started with: Local path to files={path_to_files}, "
+                f"Topics={topics}, Start time={start_time}, End time={end_time}")
 
     epoch_start = '1980-01-01'
     epoch_end = '2900-12-31'
@@ -93,14 +92,15 @@ def pars_files(path_to_files, path_to_pictures, topics=None, start_time=None, en
     end_timestamp = rospy.Time.from_sec(end_time_t.replace(tzinfo=timezone.utc).timestamp())
 
     if start_timestamp > end_timestamp:
-        # logging.error(f"Start filter time={start_time} is greater than End filter time={end_time}")
+        logger.error(f"Start filter time={start_time} is greater than End filter time={end_time}")
 
         if debug_mode:
             print('Error: End filter time is greater than Start filter time')
         return
 
     lst_files = os.listdir(path_to_files)
-    lst_files = sorted([path_to_files + fl for fl in lst_files if get_file_extension(fl) == BAG_FILE_EXTENSION])
+    lst_files = sorted([os.path.join(path_to_files, fl)
+                       for fl in lst_files if get_file_extension(fl) == bag_file_extension])
 
     if debug_mode:
         print(start_timestamp, end_timestamp)

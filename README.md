@@ -1,2 +1,7 @@
-# rosbag_s3
-rosbag files processor utils and test project
+## ROSBAG files processor
+
+OS: Linux
+
+### Назначение:
+
+Извлекает изображения из rosbag файлов, находящихся в папке на локальном диске и складывает их в другую локальную папку.
