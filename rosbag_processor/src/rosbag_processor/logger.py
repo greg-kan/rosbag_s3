@@ -2,7 +2,6 @@ import logging
 
 
 class Logger:
-    # конструктор
     def __init__(self, pname, plog_file, log_level=logging.INFO):
         handler = logging.FileHandler(plog_file)
         handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))

@@ -1,0 +1,6 @@
+{"url":"https://",
+ "accessKey":"your accessKey",
+ "secretKey":"your secretKey",
+ "api":"s3v4",
+ "path":"auto"
+}
