@@ -2,10 +2,6 @@
 
 OS: Linux
 
-### Назначение:
-
-Извлекает изображения из rosbag файлов, находящихся в папке на локальном диске и складывает их в другую локальную папку.
-
 ### Сборка:
 
 Склонировать репозиторий:
@@ -36,11 +32,11 @@ OS: Linux
 
 `rosbag_processor-0.1-py3-none-any.whl`
 
-Примечание: в папке dist лежит собранный пакет.
+_Примечание: в папке dist уже лежит собранный пакет._
 
 ### Установка:
 
-Создать виртуальную среду для программы - тестера, например:
+Создать виртуальную среду для программы-тестера, например:
 
 `rosbag_tester_env`
 
@@ -54,7 +50,9 @@ OS: Linux
 
 Будет установлен пакет rosbag_processor-0.1 с зависимостями.
 
-Зависимости можно установить отдельно:
+Зависимости пакета можно установить и так:
+
+`pip install boto3`
 
 `pip install bagpy`
 
@@ -65,44 +63,94 @@ OS: Linux
 
 ### Использование:
 
-В домашней директории создать папку
+В домашней директории пользователя создать папку
 
 `.rosbag_processor`
 
-с файлом конфигурации
+с файлами конфигурации:
 
-`conf.json внутри`
+`conf.json`
+`connect.json`
 
-Содержимое json:
+Содержимое `conf.json`:
 
 `{"log_file":"rosbag_processor", "bag_file_extension":".bag"}`
 
-Создать python - файл для запуска, например, main.py с содержимым:  
+Содержимое  `connect.json`:
 
-`from rosbag_processor import parser as pr`
+`{"url":"https:// s3 storage url",`
 
-`LOCAL_BAG_FILES_PATH = '/data1/s3/bg' #  Путь к расположению rosbag файлов. Обязательно`
+` "accessKey":"your accessKey",`
 
-`LOCAL_PICTURES_DESTINATION = '/data1/s3/pictures' #  Путь, куда будут извлечены картинки. Обязательно`
+` "secretKey":"your secretKey",`
 
-`#  Можно задать Топики rosbag файлов для фильтра (опционально):`
+` "api":"s3v4",`
 
-`TOPICS = ['/realsense_gripper/aligned_depth_to_color/image_raw', '/realsense_gripper/color/image_raw/compressed']`
+` "path":"auto"}`
 
-`#  Можно задать временные интервалы rosbag файлов для фильтра (опционально):`
+_Примечание: в папке `.rosbag_processor` приведены шаблоны._
+
+Далее, создать python-скрипт для запуска, например, main.py
+
+Пример готового скрипта есть в папке `rosbag_tester`
+
+Запустить в созданной виртуальной среде:
+
+`(rosbag_tester_env) user@lws:~/rosbag_s3/rosbag_tester$ python3 main.py`
+
+### Описание интерфейса пакета.
+
+Пакет содержит три основных модуля: `downloader.py, parser.py и uploader.py` соответственно для скачивания rosbag файлов, их парсинга и помещения результата парсинга (изображений) в хранилище.
+
+Ниже описан интерфейс каждого из них. 
+
+`downloader.py`
+
+Функция `download_parallel_multithreading`
+
+Возвращает:
+
+Для каждого скачанного файла - словарь с именем и размером файла и результат: Success, или сообщение об ошибке.
+
+Параметры:
+
+- `source_bucket` - Хранилище-источник (обязательный)
+- `source_prefix` - Папка-источник (обязательный)
+- `path_to_bag_files` - Абсолютный путь к локальной папке для скачанных rosbag файлов (обязательный) 
+- `debug_mode=False` - Режим отладки (опциональный). В случае True выводит в консоль сообщения о ходе процесса (те же, что и в лог-файлы). По умолчанию: False
+
+`parser.py`
+
+Функция `pars_files`
+
+Параметры:
+
+- `path_to_files` - Абсолютный путь к локальной папке с rosbag файлами (обязательный)
+- `path_to_pictures` - Абсолютный путь к папке, в которой будут результаты парсинга (изображения) (обязательный)  
+- `topics=None` - Имя Топика для парсинга топиков определенного типа (опциональный).
+
+Функция обрабатывает топики только следующих типов:
+
+`'/realsense_gripper/aligned_depth_to_color/image_raw', '/realsense_gripper/color/image_raw/compressed'`
+
+- `start_time=None` - Левая граница временного интервала для обработки (опциональный)
+- `end_time=None` - Правая граница временного интервала для обработки (опциональный)
+
+Пример:
 
 `MIN_FILTER_TIME = '2023-08-22 18:33:48'`
 
 `MAX_FILTER_TIME = '2023-08-22 18:33:52'`
 
-`#  Вызов парсера без фильтров:`
+- `debug_mode=False` - Режим отладки (опциональный). В случае True выводит в консоль сообщения о ходе процесса (те же, что и в лог-файлы). По умолчанию: False
 
-`pr.pars_files(LOCAL_BAG_FILES_PATH, LOCAL_PICTURES_DESTINATION)`
+`uploader.py`
 
-`#  Вызов парсера с фильтрами:`
+Функция `store_files_to_s3`
 
-`pr.pars_files(LOCAL_BAG_FILES_PATH, LOCAL_PICTURES_DESTINATION, topics=TOPICS, start_time=MIN_FILTER_TIME, end_time=MAX_FILTER_TIME)`
+Параметры:
 
-Запустить в созданной виртуальной среде:
+- `path_to_pictures` - Абсолютный путь к папке с изображениями (обязательный)
+- `destination_bucket` - Хранилище-назначение (обязательный)
+- `debug_mode=False` - Режим отладки (опциональный). В случае True выводит в консоль сообщения о ходе процесса (те же, что и в лог-файлы). По умолчанию: False
 
-`(rosbag_tester_env) user@lws:~/rosbag_s3/rosbag_tester$ python3 main.py`

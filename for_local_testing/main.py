@@ -1,6 +1,6 @@
-from rosbag_processor import parser as pr
-from rosbag_processor import downloader as dw
-from rosbag_processor import uploader as up
+import parser as pr
+import downloader as dw
+import uploader as up
 
 from pathlib import Path
 import logging
@@ -65,5 +65,3 @@ def start_routine():
 
 if __name__ == "__main__":
     start_routine()
-
-

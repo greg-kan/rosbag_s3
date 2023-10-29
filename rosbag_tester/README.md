@@ -4,4 +4,4 @@ OS: Linux
 
 ### Назначение:
 
-Утилита для тестирования модуля ROSBAG files processor
+Утилита для тестирования пакета ROSBAG files processor.
