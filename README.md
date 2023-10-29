@@ -10,10 +10,8 @@ OS: Linux
 
 
 - Пакет: https://github.com/greg-kan/rosbag_s3/blob/master/rosbag_processor/README.md
-- Программа для тестирования: https://github.com/greg-kan/rosbag_s3/blob/master/rosbag_tester/README.md
+- Скрипт для тестирования: https://github.com/greg-kan/rosbag_s3/blob/master/rosbag_tester/README.md
 
 TODO:
 
-1. Полное описание (код добавлен, описание - в процессе).
-2. Потоковая обработка rosbag файлов (steaming).
-
+1. Потоковая обработка rosbag файлов (steaming).
